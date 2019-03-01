@@ -4,11 +4,9 @@ A tensorflow implementation of the Super Resolution CNN
 ## Usage
 Download and extract the Set5 image dataset here.
 
-Create two folders name `Checkpoints` and `Output` in the project folder with the command 
-`mkdir Checkpoints Output`
+Create a folders named `data` with `mkdir data` and extract the dataset into the same.
 
-One can use this directly by importing the files `srcnn.py` and `dataset.py`
+Simply run the network with `python3 main.py` to train the model and save it.
 
-Incase one implements their own classes for pre-processing the dataset, one needs to implement the `get_next_batch(self, batch_size)` which is essentially a generator that is used by the `srcnn` model.
 
 
