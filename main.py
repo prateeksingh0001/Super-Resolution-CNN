@@ -1,13 +1,45 @@
-from dataset import dataset
-import numpy as np
 import tensorflow as tf
-from srcnn import srcnn
-import pickle
+
+from data_loader.data_generator import DataGenerator
+from models.srcnn_model import SRCNN_Model
+from trainers.srcnn_trainer import srcnn_Trainer
+from utils.config import process_config
+from utils.dirs import create_dirs
+from utils.logger import Logger
+from utils.utils import get_args
 
 
-pickle_in = open("data.pickle", "rb")
-data = pickle.load(pickle_in)
+def main():
+    # capture the config path from the run arguments
+    # then process the json configuration file
+    try:
+        args = get_args()
+        config = process_config(args.config)
 
-srcnn_model = srcnn()
+    except:
+        print("missing or invalid arguments")
+        exit(0)
 
-srcnn_model.train(data, 40, 30, 2000)
+    # create the experiments dirs
+    create_dirs([config.summary_dir, config.checkpoint_dir])
+    # create tensorflow session
+    sess = tf.Session()
+    print('starting data generation')
+    # create your data generator
+    data = DataGenerator(config)
+
+    print('reached the model')
+    # create an instance of the model you want
+    model = SRCNN_Model(config)
+    # create tensorboard logger
+    logger = Logger(sess, config)
+    # create trainer and pass all the previous components to it
+    trainer = srcnn_Trainer(sess, model, data, config, logger)
+    #load model if exists
+    model.load(sess)
+    # here you train your model
+    trainer.train()
+
+
+if __name__ == '__main__':
+    main()

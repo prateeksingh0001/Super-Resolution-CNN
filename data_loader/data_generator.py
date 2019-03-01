@@ -6,12 +6,24 @@ from sklearn.model_selection import train_test_split
 import scipy.misc as ms
 
 
+class DataGenerator:
+    def __init__(self, configs):
+        self.image_dir = configs.image_dir
+        self.scale = configs.scale
 
-class dataset:
-    def __init__(self, image_dir, scale):
-        self.image_dir = image_dir
-        self.scale = scale
-        self.images, self.labels = self.prep_images(self.image_dir, 33, 21, 20)
+        if os.path.isfile(configs.preprocessed_data):
+            print('Data file found!..............')
+            with open(configs.preprocessed_data, 'rb') as input_file:
+                merged_data = pickle.load(input_file)
+                self.images, self.labels = zip(*merged_data)
+                self.images = np.asarray(self.images)
+                self.labels = np.asarray(self.labels)
+        else:
+            self.images, self.labels = self.prep_images(self.image_dir, 33, 21, 20)
+            print('Saving data as picklei............')
+            self.save_as(configs.preprocessed_data)
+            print('Data saved successfully......')
+
 
     def modcrop(self, image, scale):
         size = image.shape
@@ -59,7 +71,8 @@ class dataset:
         x_train, x_test = train_test_split(np.array(data), test_size=0.2)
         return x_train, x_test
 
-    def save_as_(self, filename):
-        with open(filename, 'rb') as pickle_file:
-            pickle.dump(self, pickle_file)
+    def save_as(self, filename):
+        merged_data = list(zip(self.images, self.labels))
+        with open(filename, 'wb') as pickle_file:
+            pickle.dump(merged_data, pickle_file)
 
